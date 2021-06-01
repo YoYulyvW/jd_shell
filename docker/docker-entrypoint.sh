@@ -40,7 +40,8 @@ if [ ! -s ${JD_DIR}/config/auth.json ]; then
 fi
 
 echo -e "========================3. 启动挂机程序========================\n"
-pm2 flush
+# 清空pm2日志
+rm -rf /root/.pm2/logs/*
 if [[ ${ENABLE_HANGUP} == true ]]; then
   . ${JD_DIR}/config/config.sh
   if [ -n "${Cookie1}" ]; then
@@ -56,13 +57,14 @@ fi
 echo -e "========================4. 启动控制面板========================\n"
 if [[ ${ENABLE_WEB_PANEL} == true ]]; then
   cd ${JD_DIR}/panel
-  pm2 start ./server.js --watch --ignore-watch="public node_modules" --name="server"
+  pm2 start ecosystem.config.js
   echo -e "控制面板启动成功...\n"
   echo -e "如未修改用户名密码，则初始用户名为：admin，初始密码为：adminadmin\n"
   echo -e "请访问 http://<ip>:5678 登陆并修改配置...\n"
 elif [[ ${ENABLE_WEB_PANEL} == false ]]; then
   echo -e "已设置为不自动启动控制面板，跳过...\n"
 fi
+
 echo -e "容器启动成功...\n"
 
 if [ "${1#-}" != "${1}" ] || [ -z "$(command -v "${1}")" ]; then
